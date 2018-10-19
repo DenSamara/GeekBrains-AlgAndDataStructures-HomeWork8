@@ -30,7 +30,12 @@ namespace HardSorting
             Console.WriteLine("\n\n");
         }
 
-        //Реализовать сортировку подсчетом.
+        /// <summary>
+        /// Сортировка подсчетом. Данная реализация рассчитана на идеальные условия.
+        /// Отсутствует поиск мин и макс
+        /// </summary>
+        /// <param name="sourceArray"></param>
+        /// <returns></returns>
         static int[] sortingByCounting(int[] sourceArray)
         {
             int k = sourceArray.Length;
@@ -50,27 +55,52 @@ namespace HardSorting
         }
 
         //Реализовать быструю сортировку
-        static int[] sortingByFast(int[] A)
+        static int[] quickSorting(int[] data, int first, int last)
         {
-            int k = A.Length;
-            int[] result = new int[k]; // Частотный массив
+            int i = first, j = last, x = data[(first + last) / 2];
+            do
+            {
+                while (data[i] < x && i < data.Length - 1)
+                    i++;
+                while (data[j] > x && j > 0)
+                    j--;
+                if (i <= j)
+                {
+                    if (data[i] > data[j])
+                    {
+                        int tmp = data[i];
+                        data[i] = data[j];
+                        data[j] = tmp;
+                    }
+                    i++;
+                    j--;
+                }
+            } while (i <= j);
 
-            return result;
+            if (i < last)
+                data = quickSorting(data, i, last);
+            if (first < j)
+                data = quickSorting(data, first, j);
+
+            return data;
         }
 
         static void Main(string[] args)
         {
+            DateTime start;
+            TimeSpan dif;
             int size;
             int[] testArray;
+            int[] sorted;
 
             Console.WriteLine("Введите режим работы: 1 - выборка из 100 элементов, 2 - выборка из 10 000, 3 - из 1 000 000: ");
             int mode = Console.Read();
             switch (mode)
             {
-                case 2:
+                case 50:
                     size = 10000;
                     break;
-                case 3:
+                case 51:
                     size = 1000000;
                     break;
                 default:
@@ -78,22 +108,21 @@ namespace HardSorting
                     break;
             }
             testArray = generateArray(size);
-            Console.WriteLine("Исходный массив");
-            print(testArray);
+            Console.WriteLine("Исходный массив:");
+            if (mode != 51) print(testArray);
             
             //--== Задача 1. Реализовать сортировку подсчётом ==--
-            Console.WriteLine("Частотный массив");
-            
-            DateTime start = DateTime.Now;
+            start = DateTime.Now;
             int[] freq = sortingByCounting(testArray);
-            TimeSpan dif = DateTime.Now - start;
+            dif = DateTime.Now - start;
             Console.WriteLine("Сортировка подсчётом: {0}s {1}ms {2}ticks", dif.Seconds, dif.Milliseconds, dif.Ticks);
-
-            print(freq);
+            
+            Console.WriteLine("Частотный массив:");
+            if (mode != 51) print(freq);
 
             Console.WriteLine("Отсортированный массив:");
-            int[] sorted = new int[size];
-            int k = 0; // Счётчик элементов в итоговом массиве
+            sorted = new int[size];
+            int k = 0; // счётчик элементов в итоговом массиве
             for (int i = 0; i < freq.Length; i++)
             {
                 if (freq[i] > 0)
@@ -103,15 +132,15 @@ namespace HardSorting
                         k++;
                     }
             }
-            print(sorted);
+            if (mode != 51) print(sorted);
 
             //--== Задача 2. Реализовать быструю сортировку ==--
             start = DateTime.Now;
-            sorted = sortingByFast(testArray);
+            sorted = quickSorting(testArray, testArray[0], testArray[size-1]);
             dif = DateTime.Now - start;
             Console.WriteLine("Быстрая сортировка: {0}s {1}ms {2}ticks", dif.Seconds, dif.Milliseconds, dif.Ticks);
-            
-            print(sorted);
+
+            if (mode != 51) print(sorted);
 
             Console.ReadKey();
         }
